@@ -127,7 +127,7 @@ function Privacy() {
   return <div className="document-page"><header><a href="/">Mobin'AI</a><a href="/" className="back-link"><ArrowLeft size={16} /> Back to chat</a></header><main>
     <span className="eyebrow">MOBIN'AI / INFORMATION</span><h1>Privacy notice</h1>
     <p className="document-lead">This notice describes the planned Mobin'AI data practices. Final text and contact details require owner approval before launch.</p>
-    <h2>What we collect</h2><p>We collect your given and family names, an email address or phone number, your privacy and optional marketing choices, and the questions and answers in your conversation. The backend may process your IP address for service security and abuse prevention.</p>
+    <h2>What we collect</h2><p>We collect your given and family names, an email address or phone number, your privacy and optional marketing choices, and the questions and answers in your conversation. Conversations are stored and may be reviewed by a human to assess and improve the service. The backend may process your IP address for service security and abuse prevention.</p>
     <h2>Why we use it</h2><p>We use these details to provide the chat service, support service-related follow-up, protect the service, and improve answer quality. We send marketing updates only when you choose the separate optional consent box.</p>
     <h2>Retention</h2><p>The planned retention period is 12 months. The service owner must finalize and operate the deletion process before launch.</p>
     <h2>Access or deletion requests</h2><p className="launch-placeholder"><strong>Launch placeholder:</strong> Add the site owner's approved contact email or request page here before going live.</p>

@@ -64,7 +64,7 @@ export function Registration({ onComplete }: { onComplete: (session: Session) =>
     }
   };
   return <div className="registration-wrap">
-    <div className="registration-heading"><span className="eyebrow">01 / GET STARTED</span><h2>Start with a quick hello.</h2><p>A few details help keep Mobin'AI useful and give us a way to follow up about the service.</p></div>
+    <div className="registration-heading"><span className="eyebrow">01 / GET STARTED</span><h2>Hi, I’m Mobin’AI.</h2><p>I answer questions based on Mobin’s software engineering knowledge. Please introduce yourself to get started. Your conversations are stored and may be reviewed by a human.</p></div>
     <form className="registration-form" onSubmit={submit} noValidate>
       <div className="two-fields">
         <label>Given name <span aria-hidden="true">*</span><input autoComplete="given-name" {...field('given_name')} aria-invalid={!!errors.given_name} /><small>{errors.given_name?.message}</small></label>
