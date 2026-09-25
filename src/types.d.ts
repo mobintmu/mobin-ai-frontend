@@ -1,0 +1,1 @@
+interface Window { MobinAI?: { init: (options?: { baseUrl?: string; launcherLabel?: string; offsetRight?: number; offsetBottom?: number; initialOpen?: boolean }) => { open: () => void; close: () => void; destroy: () => void }; destroy: () => void } }

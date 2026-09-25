@@ -1,2 +1,117 @@
-# mobin-ai-frontend
-An AI chatbot model for a RAG system
+# Mobin'AI frontend
+
+Independent React/TypeScript chat frontend for Mobin Shaterian's writing. It provides a standalone page, `/embed` iframe page, and a framework-agnostic popup loader at `/embed/v1.js`. The browser calls the separate API directly. No backend, article corpus, or provider secret is included here.
+
+**Integration status:** the backend has not been built. The API adapter follows the [provisional contract](contracts/README.md); production integration must be checked against a pinned backend OpenAPI artifact. The privacy page contains an explicit launch placeholder for the owner's access/deletion contact route and needs approved legal copy before release.
+
+## Try it without a backend
+
+```bash
+npm ci
+npm run demo
+```
+
+Open `http://127.0.0.1:5173/`. Use any test name and email or phone, accept the privacy notice, and ask a question. Turnstile is replaced by a local verification stub. Answers are clearly labeled demo fixtures; they do not search articles or call an AI model. The mock API runs only in the Vite development server, keeps conversations in process memory, and resets when you stop/restart it. Stop with Ctrl+C.
+
+For the embed page, open `http://127.0.0.1:5173/embed`. The production build does not include the demo API or verification stub.
+
+## Local setup
+
+Node 24+ and npm 11+ are recommended. From this repository:
+
+```bash
+npm ci
+cp .env.example .env.local
+# Set VITE_API_BASE_URL and a public VITE_TURNSTILE_SITE_KEY in .env.local
+npm run dev
+```
+
+Open `http://localhost:5173`. The app cannot complete registration until a backend and Turnstile public site key are available. For local Turnstile testing, use Cloudflare's official test site key with the matching backend test secret. `VITE_` variables are visible in the browser; never put a private key in them.
+
+```bash
+npm run lint
+npm run typecheck
+npm test
+npm run test:browser
+npm run build
+npm run preview
+```
+
+The unit and browser tests use mocked API/Turnstile responses. Playwright needs Chromium installed first: `npx playwright install chromium`. The browser test builds with a test-only public site key, serves the Vite preview, and intercepts the API; it does not contact a model or production backend. The mock is test-only and is not included in the production build.
+
+## Public configuration
+
+| Variable | Purpose |
+| --- | --- |
+| `VITE_API_BASE_URL` | Backend origin, for example `https://api.mobinshaterian.com` |
+| `VITE_TURNSTILE_SITE_KEY` | Public Cloudflare Turnstile site key |
+| `VITE_CHAT_PUBLIC_URL` | Public chat origin, for documentation/integration |
+
+Only HTTPS origins should be used in production. The backend must allow CORS from `https://chat.mobinshaterian.com` and local development origins, verify Turnstile with its private secret, and authorize every scoped request with the bearer token. See [integration assumptions](contracts/README.md).
+
+## Embed in mobinshaterian.com
+
+Put this once in the current site's root layout, near the closing `</body>` tag. In TanStack Start, render the script from the root document layout so route navigation does not duplicate it:
+
+```html
+<script defer src="https://chat.mobinshaterian.com/embed/v1.js"></script>
+```
+
+The script creates a launcher. It creates the iframe only on first open and keeps all registration, API, and session logic inside the chat origin. It does not read the conversation credential. The website needs no React dependency or backend access. If its CSP is restrictive, allow `script-src https://chat.mobinshaterian.com`, `frame-src https://chat.mobinshaterian.com`, and styles injected by the loader. The chat host permits framing only from `https://mobinshaterian.com` and `https://www.mobinshaterian.com` in [Caddyfile](deploy/Caddyfile).
+
+A plain HTML site uses the same script:
+
+```html
+<script defer src="https://chat.mobinshaterian.com/embed/v1.js"
+        data-launcher-label="Ask Mobin'AI" data-offset-right="24" data-offset-bottom="24"></script>
+```
+
+For client-side navigation or manual control:
+
+```html
+<script defer src="https://chat.mobinshaterian.com/embed/v1.js" data-mobin-ai-auto="false"></script>
+<script>
+  // Run after the loader has loaded.
+  const widget = window.MobinAI.init({ launcherLabel: "Ask Mobin'AI", initialOpen: false });
+  // On app teardown: widget.destroy();
+</script>
+```
+
+Options: `baseUrl` (HTTPS origin; HTTP localhost for tests), `launcherLabel` (plain text up to 60 characters), `offsetRight` and `offsetBottom` (0–200 pixels), and `initialOpen`. Repeated initialization returns the existing widget. `destroy()` removes listeners and host elements. The loader and iframe exchange only versioned `ready`, `open`, and `close` messages, with an exact origin check; no contact, token, question, or answer crosses `postMessage`.
+
+For a page section or a site-owned popup wrapper, use a plain iframe:
+
+```html
+<iframe title="Mobin'AI chat about Mobin's articles"
+        src="https://chat.mobinshaterian.com/embed"
+        allow="clipboard-write" referrerpolicy="strict-origin-when-cross-origin"
+        style="width:100%;min-height:680px;border:0;border-radius:14px"></iframe>
+```
+
+Never add tokens, contact details, or questions to the iframe URL. For local cross-origin embed testing, serve a host page at `http://localhost:4173` and the chat build at `http://127.0.0.1:4173` as in the Playwright test, or use two local ports. The production `frame-ancestors` allowlist is stricter than this development arrangement.
+
+## Deployment
+
+Build with `npm ci && npm run build` and publish **only** `dist/` to static hosting at `chat.mobinshaterian.com`. [Caddyfile](deploy/Caddyfile) shows TLS hosting, SPA route fallback, separate `/embed` framing policy, CSP, and cache headers. Point DNS for `chat.mobinshaterian.com` to the static host and issue TLS there. Do not set `X-Frame-Options: DENY` on `/embed`. Review CSP behavior with Turnstile on the chosen host; the main website's CSP must allow the loader and iframe. Keep the last known-good `dist/` artifact for rollback. The API remains a separately deployed service at `api.mobinshaterian.com`.
+
+The versioned loader URL is a public API. Keep its option names and message protocol compatible within v1; publish `/embed/v2.js` for breaking changes. The loader has a one-hour cache header, while hashed app assets may be cached immutably. HTML is served with `no-cache` so rollbacks are visible promptly.
+
+## Session and privacy model
+
+After registration, the backend returns an opaque scoped bearer token. The iframe keeps it in memory and `sessionStorage` on the chat origin for same-tab refresh recovery. It is cleared on a new session, expiry, or unauthorized response. The quota shown is only from API responses. A different device cannot recover this session. Contact fields are not placed in storage after registration. The frontend does not cache transcripts in a service worker or send personal data to analytics.
+
+Privacy text is a draft. Before launch, approve the content, supply the access/deletion contact route, confirm backend retention operations, and publish the matching policy version.
+
+## Screenshots
+
+These captures show the frontend with a test-only Turnstile stub; they contain no real visitor data.
+
+- [Desktop registration](docs/screenshots/desktop-registration.png)
+- [Mobile registration](docs/screenshots/mobile-registration.png)
+
+
+## Run demo
+
+cd /home/mobin/Documents/mobin-ai-frontend
+npm ci
+npm run demo

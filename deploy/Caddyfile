@@ -1,0 +1,24 @@
+chat.mobinshaterian.com {
+    root * /srv/mobin-ai-frontend/dist
+    encode zstd gzip
+
+    @embed path /embed
+    @notEmbed not path /embed
+    @loader path /embed/v1.js
+    @assets path /assets/*
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        X-Content-Type-Options "nosniff"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    }
+    header @notEmbed Content-Security-Policy "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'none'; connect-src 'self' https://api.mobinshaterian.com https://challenges.cloudflare.com; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://challenges.cloudflare.com; form-action 'self'"
+    header @embed Content-Security-Policy "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors https://mobinshaterian.com https://www.mobinshaterian.com; connect-src 'self' https://api.mobinshaterian.com https://challenges.cloudflare.com; script-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://challenges.cloudflare.com; form-action 'self'"
+    header @loader Cache-Control "public, max-age=3600"
+    header @assets Cache-Control "public, max-age=31536000, immutable"
+    header /index.html Cache-Control "no-cache"
+
+    try_files {path} /index.html
+    file_server
+}
