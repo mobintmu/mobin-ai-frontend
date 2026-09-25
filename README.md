@@ -58,7 +58,7 @@ The `mobinshaterian.com` root layout now includes this script once, near the clo
         data-base-url="https://chat.mobinshaterian.com"></script>
 ```
 
-The script creates a launcher. It creates the iframe only on first open and keeps all registration, API, and session logic inside the chat origin. It does not read the conversation credential. The website needs no React dependency or backend access. If its CSP is restrictive, allow `script-src https://chat.mobinshaterian.com`, `frame-src https://chat.mobinshaterian.com`, and styles injected by the loader. The chat host permits framing only from `https://mobinshaterian.com` and `https://www.mobinshaterian.com` in [Caddyfile](deploy/Caddyfile).
+The script creates a launcher. It creates the iframe only on first open and keeps all registration, API, and session logic inside the chat origin. It does not read the conversation credential. The website needs no React dependency or backend access. If its CSP is restrictive, allow `script-src https://chat.mobinshaterian.com`, `frame-src https://chat.mobinshaterian.com`, and styles injected by the loader. The sample [Caddyfile](deploy/Caddyfile) allows framing from those two website origins when self-hosting; GitHub Pages does not use that file.
 
 A plain HTML site uses the same script:
 
@@ -93,7 +93,9 @@ Never add tokens, contact details, or questions to the iframe URL. For local cro
 
 ## Deployment
 
-Build with `npm ci && npm run build` and publish **only** `dist/` to static hosting at `chat.mobinshaterian.com`. [Caddyfile](deploy/Caddyfile) shows TLS hosting, SPA route fallback, separate `/embed` framing policy, CSP, and cache headers. Point DNS for `chat.mobinshaterian.com` to the static host and issue TLS there. Do not set `X-Frame-Options: DENY` on `/embed`. Review CSP behavior with Turnstile on the chosen host; the main website's CSP must allow the loader and iframe. Keep the last known-good `dist/` artifact for rollback. The API remains a separately deployed service at `api.mobinshaterian.com`.
+For GitHub Pages with Cloudflare DNS, follow [the deployment guide](docs/deploy-github-pages-cloudflare.md).
+
+Build with `npm ci && npm run build` and publish **only** `dist/` to static hosting at `chat.mobinshaterian.com`. [Caddyfile](deploy/Caddyfile) shows TLS hosting, SPA route fallback, separate `/embed` framing policy, CSP, and cache headers for self-hosting. GitHub Pages needs the route fallback described in the deployment guide. Point DNS for `chat.mobinshaterian.com` to the static host and issue TLS there. Do not set `X-Frame-Options: DENY` on `/embed`. Review CSP behavior with Turnstile on the chosen host; the main website's CSP must allow the loader and iframe. Keep the last known-good `dist/` artifact for rollback. The API remains a separately deployed service at `api.mobinshaterian.com`.
 
 The versioned loader URL is a public API. Keep its option names and message protocol compatible within v1; publish `/embed/v2.js` for breaking changes. The loader has a one-hour cache header, while hashed app assets may be cached immutably. HTML is served with `no-cache` so rollbacks are visible promptly.
 
