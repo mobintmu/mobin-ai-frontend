@@ -15,7 +15,8 @@ const parentOrigin = (() => {
 })();
 const approvedParent = ['https://mobinshaterian.com', 'https://www.mobinshaterian.com', window.location.origin].includes(parentOrigin)
   || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(parentOrigin);
-const chatPath = window.location.pathname === '/' || window.location.pathname === '/embed';
+const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
+const chatPath = currentPath === '/' || currentPath === '/embed';
 if (chatPath) document.documentElement.classList.add('embed-document');
 
 const rootRoute = createRootRoute({ component: () => <Outlet /> });
@@ -26,7 +27,7 @@ const router = createRouter({ routeTree: rootRoute.addChildren([indexRoute, embe
 declare module '@tanstack/react-router' { interface Register { router: typeof router } }
 
 function ChatPage() {
-  const embedded = window.location.pathname === '/embed' && window.parent !== window;
+  const embedded = currentPath === '/embed' && window.parent !== window;
   const [session, setSession] = useState<Session | null>(null);
   const [quota, setQuota] = useState<Quota | null>(null);
   const [checking, setChecking] = useState(() => !!readSession());

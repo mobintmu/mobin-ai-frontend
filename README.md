@@ -33,11 +33,26 @@ npm run lint
 npm run typecheck
 npm test
 npm run test:browser
+npm run test:e2e
 npm run build
 npm run preview
 ```
 
 The unit and browser tests use mocked API/Turnstile responses. Playwright needs Chromium installed first: `npx playwright install chromium`. The browser test builds with a test-only public site key, serves the Vite preview, and intercepts the API; it does not contact a model or production backend. The mock is test-only and is not included in the production build.
+
+### Full local end-to-end test
+
+From this repository, run:
+
+```bash
+npm ci
+npx playwright install chromium
+npm run test:e2e
+```
+
+The e2e command starts and stops its own demo server on `http://127.0.0.1:5187/`. Do not start that server separately. It uses the real frontend and the local demo API to test registration, a streamed answer, quota changes, refresh recovery, the embedded loader, and mobile layout. It needs no production backend, Turnstile key, or AI model. The answers are demo fixtures, so this test does **not** prove the future production API integration.
+
+To watch the browser run, use `npm run test:e2e -- --headed`. To inspect a failed run, use `npx playwright show-report`. If Playwright Chromium cannot be installed but system Chrome is available, run `PLAYWRIGHT_CHROME_PATH=/usr/bin/google-chrome npm run test:e2e` (adjust the path for your machine). The separate `npm run test:browser` suite tests the production build with intercepted API and Turnstile requests.
 
 ## Public configuration
 
@@ -110,3 +125,10 @@ Privacy text is a draft. Before launch, approve the content, supply the access/d
 
 npm ci
 npm run demo
+
+
+## Tests
+
+npm ci
+npx playwright install chromium
+npm run test:e2e

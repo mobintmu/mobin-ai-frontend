@@ -32,5 +32,5 @@ export default defineConfig(({ command, mode }) => ({
       },
     },
   },
-  test: { environment: 'jsdom', setupFiles: ['./tests/setup.ts'], exclude: ['tests/browser/**', 'node_modules/**'] },
+  test: { environment: 'jsdom', setupFiles: ['./tests/setup.ts'], exclude: ['tests/browser/**', 'tests/e2e/**', 'node_modules/**'] },
 }));
