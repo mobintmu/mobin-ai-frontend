@@ -1,4 +1,5 @@
-import { useCallback, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useRef, useState } from 'react';
+import type { FormEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -29,19 +30,38 @@ export function Registration({ onComplete }: { onComplete: (session: Session) =>
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!token || submittingRef.current) return;
+
     submittingRef.current = true;
-    try { await handleSubmit(async values => {
-    setError(null); setReference(null);
+    setError(null);
+    setReference(null);
+
     try {
-      const session = await register({ given_name: values.given_name.trim(), family_name: values.family_name.trim(), email: values.email.trim() || null, phone: values.phone.trim() || null, privacy_accepted: true, privacy_policy_version: '2026-09-25', marketing_consent: values.marketing_consent, turnstile_token: token });
-      onComplete(session);
-    } catch (caught) {
-      const apiError = caught instanceof ApiError ? caught : null;
-      setError(apiError?.message ?? 'Registration could not be completed. Please try again.');
-      setReference(apiError?.requestId ?? null);
-      if (apiError?.code.startsWith('turnstile') || apiError?.code === 'network_error') { setToken(null); setResetSignal(value => value + 1); }
+      await handleSubmit(async values => {
+        try {
+          const session = await register({
+            given_name: values.given_name.trim(),
+            family_name: values.family_name.trim(),
+            email: values.email.trim() || null,
+            phone: values.phone.trim() || null,
+            privacy_accepted: true,
+            privacy_policy_version: '2026-09-25',
+            marketing_consent: values.marketing_consent,
+            turnstile_token: token,
+          });
+          onComplete(session);
+        } catch (caught) {
+          const apiError = caught instanceof ApiError ? caught : null;
+          setError(apiError?.message ?? 'Registration could not be completed. Please try again.');
+          setReference(apiError?.requestId ?? null);
+          if (apiError?.code.startsWith('turnstile') || apiError?.code === 'network_error') {
+            setToken(null);
+            setResetSignal(value => value + 1);
+          }
+        }
+      })(event);
+    } finally {
+      submittingRef.current = false;
     }
-    })(event); } finally { submittingRef.current = false; }
   };
   return <div className="registration-wrap">
     <div className="registration-heading"><span className="eyebrow">01 / GET STARTED</span><h2>Start with a quick hello.</h2><p>A few details help keep Mobin'AI useful and give us a way to follow up about the service.</p></div>

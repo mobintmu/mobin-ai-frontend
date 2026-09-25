@@ -112,6 +112,5 @@ These captures show the frontend with a test-only Turnstile stub; they contain n
 
 ## Run demo
 
-cd /home/mobin/Documents/mobin-ai-frontend
 npm ci
 npm run demo
