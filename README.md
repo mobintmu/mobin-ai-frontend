@@ -73,7 +73,7 @@ The `mobinshaterian.com` root layout now includes this script once, near the clo
         data-base-url="https://chat.mobinshaterian.com"></script>
 ```
 
-The script creates a launcher. It creates the iframe only on first open and keeps all registration, API, and session logic inside the chat origin. It does not read the conversation credential. The website needs no React dependency or backend access. If its CSP is restrictive, allow `script-src https://chat.mobinshaterian.com`, `frame-src https://chat.mobinshaterian.com`, and styles injected by the loader. The sample [Caddyfile](deploy/Caddyfile) allows framing from those two website origins when self-hosting; GitHub Pages does not use that file.
+The script creates a 56px circular launcher. It creates the iframe only on first open, remembers only the open/closed preference in the embedding site’s localStorage, and keeps all registration, API, and session logic inside the chat origin. It does not read the conversation credential. The website needs no React dependency or backend access. If its CSP is restrictive, allow `script-src https://chat.mobinshaterian.com`, `frame-src https://chat.mobinshaterian.com`, and styles injected by the loader. The sample [Caddyfile](deploy/Caddyfile) allows framing from those two website origins when self-hosting; GitHub Pages does not use that file.
 
 A plain HTML site uses the same script:
 
@@ -100,19 +100,19 @@ For a page section or a site-owned popup wrapper, use a plain iframe:
 ```html
 <iframe title="Mobin'AI chat about Mobin's articles"
         src="https://chat.mobinshaterian.com/embed"
-        allow="clipboard-write" referrerpolicy="strict-origin-when-cross-origin"
+        allow="microphone; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"
         style="width:100%;min-height:680px;border:0;border-radius:14px"></iframe>
 ```
 
-Never add tokens, contact details, or questions to the iframe URL. For local cross-origin embed testing, serve a host page at `http://localhost:4173` and the chat build at `http://127.0.0.1:4173` as in the Playwright test, or use two local ports. The production `frame-ancestors` allowlist is stricter than this development arrangement.
+Never add tokens, contact details, or questions to the iframe URL. For local cross-origin embed testing, serve a host page at `http://localhost:4173` and the chat build at `http://127.0.0.1:4173` as in the Playwright test, or use two local ports. The sample Caddy configuration uses a production `frame-ancestors` allowlist. GitHub Pages does not apply that configuration; add an edge response-header rule if the allowlist is required there.
 
 ## Deployment
 
 For GitHub Pages with Cloudflare DNS, follow [the deployment guide](docs/deploy-github-pages-cloudflare.md).
 
-Build with `npm ci && npm run build` and publish **only** `dist/` to static hosting at `chat.mobinshaterian.com`. [Caddyfile](deploy/Caddyfile) shows TLS hosting, SPA route fallback, separate `/embed` framing policy, CSP, and cache headers for self-hosting. GitHub Pages needs the route fallback described in the deployment guide. Point DNS for `chat.mobinshaterian.com` to the static host and issue TLS there. Do not set `X-Frame-Options: DENY` on `/embed`. Review CSP behavior with Turnstile on the chosen host; the main website's CSP must allow the loader and iframe. Keep the last known-good `dist/` artifact for rollback. The API remains a separately deployed service at `api.mobinshaterian.com`.
+Build with `npm ci && npm run build` and publish **only** `dist/` to static hosting at `chat.mobinshaterian.com`. [Caddyfile](deploy/Caddyfile) shows TLS hosting, SPA route fallback, separate `/embed` framing policy, CSP, and cache headers for self-hosting. The build includes `embed/index.html` and `privacy/index.html` so those routes return HTTP 200 on GitHub Pages; see the deployment guide. Point DNS for `chat.mobinshaterian.com` to the static host and issue TLS there. Do not set `X-Frame-Options: DENY` on `/embed`. Review CSP behavior with Turnstile on the chosen host; the main website's CSP must allow the loader and iframe. Keep the last known-good `dist/` artifact for rollback. The API remains a separately deployed service at `api.mobinshaterian.com`.
 
-The versioned loader URL is a public API. Keep its option names and message protocol compatible within v1; publish `/embed/v2.js` for breaking changes. The loader has a one-hour cache header, while hashed app assets may be cached immutably. HTML is served with `no-cache` so rollbacks are visible promptly.
+The versioned loader URL is a public API. Keep its option names and message protocol compatible within v1; publish `/embed/v2.js` for breaking changes. The sample Caddy configuration gives the loader a one-hour cache header and hashed assets an immutable cache header. GitHub Pages controls its own response headers and caching; verify them after deployment.
 
 ## Session and privacy model
 

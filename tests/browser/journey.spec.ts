@@ -30,6 +30,12 @@ test('registers and answers with a citation on the standalone page', async ({ pa
   await expect(page.getByRole('link', { name: /Pipeline article/ })).toBeVisible();
 });
 
+test('built embed route serves an iframe page with HTTP 200', async ({ request }) => {
+  const response = await request.get('/embed/');
+  expect(response.status()).toBe(200);
+  expect(response.headers()['content-type']).toContain('text/html');
+});
+
 test('loader opens one iframe and returns focus on close', async ({ page }) => {
   await mockServices(page);
   await page.goto('http://localhost:4173/');

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "demo": "VITE_DEMO_MODE=true VITE_API_BASE_URL=http://127.0.0.1:5173 vite --host 127.0.0.1 --port 5173 --strictPort",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node tools/static-routes.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",

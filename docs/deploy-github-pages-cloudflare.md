@@ -16,7 +16,7 @@ npm test
 npm run build
 ```
 
-`npm run build` runs TypeScript and Vite. It creates `dist/index.html`, `dist/assets/`, and `dist/embed/v1.js`. Verify the result:
+`npm run build` runs TypeScript and Vite. It creates `dist/index.html`, `dist/assets/`, `dist/embed/v1.js`, `dist/embed/index.html`, `dist/privacy/index.html`, and `dist/404.html`. The explicit route files make `/embed/` and `/privacy/` return HTTP 200 on GitHub Pages. Verify the result:
 
 ```bash
 ls dist/index.html dist/embed/v1.js
@@ -35,7 +35,7 @@ The workflow runs on pushes to `main` and can also be started manually. Its step
 | --- | --- |
 | Install dependencies | Runs `npm ci --include=dev` with Node.js 24. |
 | Build frontend | Runs `npm run build`, producing `dist/`. |
-| Add route fallback | Copies `dist/index.html` to `dist/404.html` for `/embed` and `/privacy`. |
+| Build route pages | The build copies `index.html` to `embed/index.html` and `privacy/index.html`, plus `404.html` as a fallback. |
 | Configure and upload Pages | Uploads **`dist/`**, not the repository root. |
 | Deploy site | Publishes the uploaded artifact. |
 
@@ -83,11 +83,12 @@ Run:
 ```bash
 curl -fsS https://chat.mobinshaterian.com/ | rg -o '/(assets/[^" ]+\.js|src/main\.tsx)'
 curl -sS -o /dev/null -w '%{http_code} %{content_type}\n' https://chat.mobinshaterian.com/embed/v1.js
+curl -sS -o /dev/null -w '%{http_code} %{content_type}\n' https://chat.mobinshaterian.com/embed/
 ```
 
 The first command should show `/assets/...js`, **not** `/src/main.tsx`. The second should show `200` and a JavaScript content type. Then open `https://chat.mobinshaterian.com/` and click the launcher on `https://mobinshaterian.com/`.
 
-The workflow copies `index.html` to `404.html` because GitHub Pages has no SPA rewrite rule. Direct `/embed` and `/privacy` requests can display the app while returning **HTTP 404**. This is a GitHub Pages limitation of this fallback approach; use a host or edge rewrite if those paths must return HTTP 200. [GitHub custom 404 documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-custom-404-page-for-your-github-pages-site).
+The build creates real route files because GitHub Pages has no SPA rewrite rule. `/embed` redirects to `/embed/`, which now serves `embed/index.html` with **HTTP 200**. `404.html` remains a fallback for unknown client-side routes. GitHub Pages does not apply the sample Caddyfile headers; use a host or Cloudflare response-header rule if a restrictive `frame-ancestors` policy is required. [GitHub custom 404 documentation](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-custom-404-page-for-your-github-pages-site).
 
 ## 6. Publish the main website integration
 

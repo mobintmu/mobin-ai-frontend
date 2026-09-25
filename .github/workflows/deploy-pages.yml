@@ -35,8 +35,6 @@ jobs:
         env:
           VITE_API_BASE_URL: https://api.mobinshaterian.com
           VITE_TURNSTILE_SITE_KEY: ${{ vars.VITE_TURNSTILE_SITE_KEY }}
-      - name: Add GitHub Pages route fallback
-        run: cp dist/index.html dist/404.html
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site
