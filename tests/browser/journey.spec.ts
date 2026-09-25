@@ -63,9 +63,8 @@ test('mobile layout does not overflow horizontally', async ({ page }) => {
   await mockServices(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: /Good questions/ })).toBeVisible();
+  await expect(page.locator('.chat-shell')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await page.locator('#conversation').scrollIntoViewIfNeeded();
   await expect(page.getByLabel('Given name')).toBeVisible();
 });
 

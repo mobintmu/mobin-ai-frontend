@@ -1,6 +1,6 @@
 # Mobin'AI frontend
 
-Independent React/TypeScript chat frontend for Mobin Shaterian's writing. It provides a standalone page, `/embed` iframe page, and a framework-agnostic popup loader at `/embed/v1.js`. The browser calls the separate API directly. No backend, article corpus, or provider secret is included here.
+Independent React/TypeScript chat frontend for Mobin Shaterian's writing. Both `/` and `/embed` show only the chat shell; `/embed` is designed for the website iframe. The framework-agnostic popup loader is published at `/embed/v1.js`. The browser calls the separate API directly. No backend, article corpus, or provider secret is included here.
 
 **Integration status:** the backend has not been built. The API adapter follows the [provisional contract](contracts/README.md); production integration must be checked against a pinned backend OpenAPI artifact. The privacy page contains an explicit launch placeholder for the owner's access/deletion contact route and needs approved legal copy before release.
 
@@ -13,7 +13,7 @@ npm run demo
 
 Open `http://127.0.0.1:5173/`. Use any test name and email or phone, accept the privacy notice, and ask a question. Turnstile is replaced by a local verification stub. Answers are clearly labeled demo fixtures; they do not search articles or call an AI model. The mock API runs only in the Vite development server, keeps conversations in process memory, and resets when you stop/restart it. Stop with Ctrl+C.
 
-For the embed page, open `http://127.0.0.1:5173/embed`. The production build does not include the demo API or verification stub.
+For the iframe page, open `http://127.0.0.1:5173/embed`. To preview it inside the website, run the website with `VITE_MOBIN_AI_ORIGIN=http://127.0.0.1:5173 bun run dev` in a second terminal. The production build does not include the demo API or verification stub.
 
 ## Local setup
 
@@ -51,10 +51,11 @@ Only HTTPS origins should be used in production. The backend must allow CORS fro
 
 ## Embed in mobinshaterian.com
 
-Put this once in the current site's root layout, near the closing `</body>` tag. In TanStack Start, render the script from the root document layout so route navigation does not duplicate it:
+The `mobinshaterian.com` root layout now includes this script once, near the closing `</body>` tag:
 
 ```html
-<script defer src="https://chat.mobinshaterian.com/embed/v1.js"></script>
+<script defer src="https://chat.mobinshaterian.com/embed/v1.js"
+        data-base-url="https://chat.mobinshaterian.com"></script>
 ```
 
 The script creates a launcher. It creates the iframe only on first open and keeps all registration, API, and session logic inside the chat origin. It does not read the conversation credential. The website needs no React dependency or backend access. If its CSP is restrictive, allow `script-src https://chat.mobinshaterian.com`, `frame-src https://chat.mobinshaterian.com`, and styles injected by the loader. The chat host permits framing only from `https://mobinshaterian.com` and `https://www.mobinshaterian.com` in [Caddyfile](deploy/Caddyfile).
@@ -102,15 +103,8 @@ After registration, the backend returns an opaque scoped bearer token. The ifram
 
 Privacy text is a draft. Before launch, approve the content, supply the access/deletion contact route, confirm backend retention operations, and publish the matching policy version.
 
-## Screenshots
 
-These captures show the frontend with a test-only Turnstile stub; they contain no real visitor data.
-
-- [Desktop registration](docs/screenshots/desktop-registration.png)
-- [Mobile registration](docs/screenshots/mobile-registration.png)
-
-
-## Run demo
+# Run
 
 npm ci
 npm run demo
