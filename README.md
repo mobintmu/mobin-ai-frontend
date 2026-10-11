@@ -1,6 +1,6 @@
 # Mobin'AI frontend
 
-Independent React/TypeScript chat frontend for Mobin Shaterian's writing. Both `/` and `/embed` show only the chat shell; `/embed` is designed for the website iframe. The framework-agnostic popup loader is published at `/embed/v1.js`. The browser calls the separate API directly. No backend, article corpus, or provider secret is included here.
+Independent React/TypeScript chat frontend for Mobin Shaterian's writing. `/` is the Mobinless home page — a single landing page that presents the assistant and embeds the chat inline via the shared `Chat`/`Registration` components. `/embed` is the standalone chat shell used by the website popup. The framework-agnostic popup loader is published at `/embed/v1.js`. The browser calls the separate API directly. No backend, article corpus, or provider secret is included here.
 
 **Integration status:** the backend has not been built. The API adapter follows the [provisional contract](contracts/README.md); production integration must be checked against a pinned backend OpenAPI artifact. The privacy page contains an explicit launch placeholder for the owner's access/deletion contact route and needs approved legal copy before release.
 
@@ -11,9 +11,9 @@ npm ci
 npm run demo
 ```
 
-Open `http://127.0.0.1:5173/`. Use any test name and email or phone, accept the privacy notice, and ask a question. Turnstile is replaced by a local verification stub. Answers are clearly labeled demo fixtures; they do not search articles or call an AI model. The mock API runs only in the Vite development server, keeps conversations in process memory, and resets when you stop/restart it. Stop with Ctrl+C.
+Open `http://127.0.0.1:5173/` for the Mobinless home page, which renders the chat panel inline. Use any test name and email or phone, accept the privacy notice, and ask a question. Turnstile is replaced by a local verification stub. Answers are clearly labeled demo fixtures; they do not search articles or call an AI model. The mock API runs only in the Vite development server, keeps conversations in process memory, and resets when you stop/restart it. Stop with Ctrl+C.
 
-For the iframe page, open `http://127.0.0.1:5173/embed`. To preview it inside the website, run the website with `VITE_MOBIN_AI_ORIGIN=http://127.0.0.1:5173 bun run dev` in a second terminal. The production build does not include the demo API or verification stub.
+For the standalone chat shell used by the iframe and the website popup, open `http://127.0.0.1:5173/embed`. To preview it inside the website, run the website with `VITE_MOBIN_AI_ORIGIN=http://127.0.0.1:5173 bun run dev` in a second terminal. The production build does not include the demo API or verification stub.
 
 ## Local setup
 

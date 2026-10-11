@@ -5,6 +5,7 @@ import { createRootRoute, createRoute, createRouter, Outlet, RouterProvider } fr
 import { ArrowLeft, X } from 'lucide-react';
 import { Registration } from './components/Registration';
 import { Chat } from './components/Chat';
+import { HomePage } from './components/HomePage';
 import { ApiError, getConversation, type Quota, type Session } from './lib/api';
 import { clearSession, readSession, saveSession } from './lib/session';
 import './styles.css';
@@ -16,11 +17,11 @@ const parentOrigin = (() => {
 const approvedParent = ['https://mobinshaterian.com', 'https://www.mobinshaterian.com', window.location.origin].includes(parentOrigin)
   || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(parentOrigin);
 const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
-const chatPath = currentPath === '/' || currentPath === '/embed';
-if (chatPath) document.documentElement.classList.add('embed-document');
+const embedPath = currentPath === '/embed';
+if (embedPath) document.documentElement.classList.add('embed-document');
 
 const rootRoute = createRootRoute({ component: () => <Outlet /> });
-const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: ChatPage });
+const indexRoute = createRoute({ getParentRoute: () => rootRoute, path: '/', component: HomePage });
 const embedRoute = createRoute({ getParentRoute: () => rootRoute, path: '/embed', component: ChatPage });
 const privacyRoute = createRoute({ getParentRoute: () => rootRoute, path: '/privacy', component: Privacy });
 const router = createRouter({ routeTree: rootRoute.addChildren([indexRoute, embedRoute, privacyRoute]) });
@@ -109,8 +110,8 @@ function ChatPage() {
           <div className="chat-header-brand"><span className="assistant-icon">✦</span><div><strong>Mobin'AI</strong><small>Answers from Mobin's technical writing</small></div></div>
           <div className="header-controls">
             <span className="online-status"><span /> READY TO EXPLORE</span>
-            {session && <button className="new-session" onClick={newSession}>New session</button>}
-            {embedded && <button className="embed-close" aria-label="Close chat" onClick={close}><X size={18} /></button>}
+            {session && <button type="button" className="new-session" onClick={newSession}>New session</button>}
+            {embedded && <button type="button" className="embed-close" aria-label="Close chat" onClick={close}><X size={18} /></button>}
           </div>
         </div>
         {!online && <div className="session-notice" role="status">You appear to be offline. Your conversation will be available when your connection returns.</div>}
@@ -124,7 +125,7 @@ function ChatPage() {
 }
 
 function Privacy() {
-  return <div className="document-page"><header><a href="/">Mobin'AI</a><a href="/" className="back-link"><ArrowLeft size={16} /> Back to chat</a></header><main>
+  return <div className="document-page"><header><a href="/">Mobinless</a><a href="/" className="back-link"><ArrowLeft size={16} /> Back to home</a></header><main>
     <span className="eyebrow">MOBIN'AI / INFORMATION</span><h1>Privacy notice</h1>
     <p className="document-lead">This notice describes the planned Mobin'AI data practices. Final text and contact details require owner approval before launch.</p>
     <h2>What we collect</h2><p>We collect your given and family names, an email address or phone number, your privacy and optional marketing choices, and the questions and answers in your conversation. Conversations are stored and may be reviewed by a human to assess and improve the service. The backend may process your IP address for service security and abuse prevention.</p>

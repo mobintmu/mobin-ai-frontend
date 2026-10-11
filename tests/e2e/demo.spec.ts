@@ -1,7 +1,15 @@
 import { expect, test } from '@playwright/test';
 
-test('register, ask a question, recover the conversation, and start a new session', async ({ page }) => {
+test('home page presents Mobinless and embeds the chat', async ({ page }) => {
   await page.goto('/');
+  await expect(page.getByRole('heading', { name: /Mobinless/ })).toBeVisible();
+  await expect(page.getByText(/explain your idea, get help turning it into a billion-dollar idea/i)).toBeVisible();
+  await expect(page.locator('.chat-shell')).toBeVisible();
+  await expect(page.getByLabel('Given name')).toBeVisible();
+});
+
+test('register, ask a question, recover the conversation, and start a new session', async ({ page }) => {
+  await page.goto('/embed');
 
   await test.step('registration validates required fields and optional marketing stays off', async () => {
     await expect(page.getByText('Local demo verification is active.')).toBeVisible();
@@ -45,7 +53,7 @@ test('register, ask a question, recover the conversation, and start a new sessio
 
   await test.step('starting over clears the browser session', async () => {
     await page.getByRole('button', { name: 'New session' }).click();
-    await expect(page.getByText('Start with a quick hello.')).toBeVisible();
+    await expect(page.getByLabel('Given name')).toBeVisible();
     expect(await page.evaluate(() => sessionStorage.getItem('mobin-ai-session-v1'))).toBeNull();
   });
 });
@@ -65,7 +73,7 @@ test('embedded loader creates the iframe on demand and closes from inside it', a
   await launcher.focus();
   await page.keyboard.press('Enter');
   await expect(widget.locator('iframe')).toHaveCount(1);
-  await expect(page.frameLocator('#mobin-ai-widget iframe').getByText('Start with a quick hello.')).toBeVisible();
+  await expect(page.frameLocator('#mobin-ai-widget iframe').getByLabel('Given name')).toBeVisible();
   await page.frameLocator('#mobin-ai-widget iframe').getByRole('button', { name: 'Close chat' }).click();
   await expect(launcher).toBeVisible();
   await expect(launcher).toBeFocused();
@@ -75,7 +83,7 @@ test('embedded loader creates the iframe on demand and closes from inside it', a
 
 test('mobile chat remains inside the viewport', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('/embed');
   await expect(page.getByLabel('Given name')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });

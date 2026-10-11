@@ -15,9 +15,17 @@ async function mockServices(page: Page) {
   });
 }
 
-test('registers and answers with a citation on the standalone page', async ({ page }) => {
+test('home page presents Mobinless and embeds the chat shell', async ({ page }) => {
   await mockServices(page);
   await page.goto('/');
+  await expect(page.getByRole('heading', { name: /Mobinless/ })).toBeVisible();
+  await expect(page.locator('.chat-shell')).toBeVisible();
+  await expect(page.getByLabel('Given name')).toBeVisible();
+});
+
+test('registers and answers with a citation on the standalone page', async ({ page }) => {
+  await mockServices(page);
+  await page.goto('/embed');
   await page.getByLabel('Given name').fill('Ada');
   await page.getByLabel('Family name').fill('Lovelace');
   await page.getByLabel('Email').fill('ada@example.com');
@@ -46,7 +54,7 @@ test('loader opens one iframe and returns focus on close', async ({ page }) => {
   await expect(launcher).toHaveCount(1);
   await launcher.click();
   await expect(page.locator('#mobin-ai-widget iframe')).toHaveCount(1);
-  await expect(page.frameLocator('#mobin-ai-widget iframe').getByText('Start with a quick hello.')).toBeVisible();
+  await expect(page.frameLocator('#mobin-ai-widget iframe').getByLabel('Given name')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(launcher).toBeFocused();
   await page.evaluate(() => window.MobinAI?.destroy());
@@ -55,7 +63,7 @@ test('loader opens one iframe and returns focus on close', async ({ page }) => {
 
 test('registration requires both names, contact, and privacy consent while marketing stays optional', async ({ page }) => {
   await mockServices(page);
-  await page.goto('/');
+  await page.goto('/embed');
   const submit = page.getByRole('button', { name: /Continue to chat/ });
   await expect(page.getByRole('checkbox', { name: /occasional updates/ })).not.toBeChecked();
   await submit.click();
@@ -68,7 +76,7 @@ test('registration requires both names, contact, and privacy consent while marke
 test('mobile layout does not overflow horizontally', async ({ page }) => {
   await mockServices(page);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/');
+  await page.goto('/embed');
   await expect(page.locator('.chat-shell')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await expect(page.getByLabel('Given name')).toBeVisible();
@@ -77,7 +85,7 @@ test('mobile layout does not overflow horizontally', async ({ page }) => {
 
 test('Turnstile expiry and failure disable registration until a fresh token arrives', async ({ page }) => {
   await mockServices(page);
-  await page.goto('/');
+  await page.goto('/embed');
   const submit = page.getByRole('button', { name: /Continue to chat/ });
   await expect(submit).toBeEnabled();
   await page.evaluate(() => (window as unknown as { __turnstileOptions: Record<string, () => void> }).__turnstileOptions['expired-callback']());
@@ -99,7 +107,7 @@ test('rapid repeated registration clicks create only one client request', async 
     await new Promise(resolve => setTimeout(resolve, 250));
     await route.fulfill({ json: { client_id: 'client-1', registration_grant: 'grant-1' }, headers: { 'Access-Control-Allow-Origin': '*' } });
   });
-  await page.goto('/');
+  await page.goto('/embed');
   await page.getByLabel('Given name').fill('Ada');
   await page.getByLabel('Family name').fill('Lovelace');
   await page.getByLabel('Email').fill('ada@example.com');
